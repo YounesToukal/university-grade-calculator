@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Grade Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #002147;
+            --secondary-color: #8B0000;
+            --accent-color: #B8860B;
+            --success-color: #228B22;
+            --error-color: #CC0000;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: #f8f9fa;
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .university-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 4px solid var(--accent-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .semester-nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .semester-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            background: var(--accent-color);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .semester-btn.active {
+            background: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .semester-container {
+            display: none;
+        }
+
+        .semester-container.active {
+            display: block;
+        }
+
+        .calculator-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
+
+        .academic-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            font-size: 1.75rem;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .module-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 1.5rem;
+            position: relative;
+            transition: transform 0.2s ease;
+            background: #ffffff;
+        }
+
+        .module-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .module-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-top: 0.25rem;
+        }
+
+        .coefficient-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .grade-input-container {
+            position: relative;
+            margin-top: 1rem;
+        }
+
+        .grade-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 1rem;
+            text-align: center;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .grade-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0,33,71,0.1);
+        }
+
+        .input-hint {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.9rem 2rem;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+
+        .results-panel {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            position: relative;
+            display: none;
+        }
+
+        .results-header {
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .grade-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .summary-label {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-value {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 0.75rem 0;
+        }
+
+        .summary-subtext {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .calculation-details {
+            margin-top: 2.5rem;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 1rem 0;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .print-section {
+            text-align: center;
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+        }
+
+        .print-notice {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        @media print {
+            body {
+                background: white;
+                font-size: 12pt;
+            }
+            
+            .calculator-container {
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .controls,
+            .grade-input-container {
+                display: none;
+            }
+            
+            .results-panel {
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .summary-item {
+                page-break-inside: avoid;
+            }
+        }
+
+        .status-indicator {
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 0.5rem 1.25rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .validation-error {
+            animation: shake 0.4s ease;
+            border-color: var(--error-color) !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+    <header class="university-header">
+        <h1>Computer Vision</h1>
+        <p id="semesterTitle">First Semester Grade Calculation System</p>
+        <div class="semester-nav">
+            <button class="semester-btn active" onclick="switchSemester(1)">Semester 1</button>
+            <button class="semester-btn" onclick="switchSemester(2)">Semester 2</button>
+        </div>
+    </header>
+
+    <!-- Semester 1 Content -->
+    <div class="semester-container active" id="semester1">
+        <div class="calculator-container">
+            <h2 class="academic-title">Semester 1 Grade Calculation - Master's Program</h2>
+            
+            <div class="module-grid">
+                <!-- Core Modules -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-name">Advanced Algorithms</div>
+                        <span class="coefficient-badge" data-coefficient="3">Coefficient 3</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <input type="number" class="grade-input" min="0" max="20" step="0.1" placeholder="Enter grade">
+                        <div class="input-hint">0-20 point scale</div>
+                    </div>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-name">Theoretical AI</div>
+                        <span class="coefficient-badge" data-coefficient="3">Coefficient 3</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <input type="number" class="grade-input" min="0" max="20" step="0.1" placeholder="Enter grade">
+                        <div class="input-hint">0-20 point scale</div>
+                    </div>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-name">Database Systems</div>
+                        <span class="coefficient-badge" data-coefficient="3">Coefficient 3</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <input type="number" class="grade-input" min="0" max="20" step="0.1" placeholder="Enter grade">
+                        <div class="input-hint">0-20 point scale</div>
+                    </div>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-name">Research Project</div>
+                        <span class="coefficient-badge" data-coefficient="3">Coefficient 3</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <input type="number" class="grade-input" min="0" max="20" step="0.1" placeholder="Enter grade">
+                        <div class="input-hint">0-20 point scale</div>
+                    </div>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-name">Multimedia Systems</div>
+                        <span class="coefficient-badge" data-coefficient="3">Coefficient 3</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <input type="number" class="grade-input" min="0" max="20" step="0.1" placeholder="Enter grade">
+                        <div class="input-hint">0-20 point scale</div>
+                    </div>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-name">Software Engineering</div>
+                        <span class="coefficient-badge" data-coefficient="3">Coefficient 3</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <input type="number" class="grade-input" min="0" max="20" step="0.1" placeholder="Enter grade">
+                        <div class="input-hint">0-20 point scale</div>
+                    </div>
+                </div>
+
+                <!-- English Module -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-name">English</div>
+                        <span class="coefficient-badge" data-coefficient="1">Coefficient 1</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <input type="number" class="grade-input" min="0" max="20" step="0.1" placeholder="Enter grade">
+                        <div class="input-hint">0-20 point scale</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" onclick="calculateGrades()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
+                        <path d="M12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4z"/>
+                        <path d="M4 2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-2zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-4z"/>
+                    </svg>
+                    Calculate Semester Average
+                </button>
+                <button class="btn btn-secondary" onclick="generateReport()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
+                        <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                        <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+                    </svg>
+                    Generate Official Report
+                </button>
+            </div>
+
+            <div class="results-panel" id="resultsPanel1">
+                <div class="results-header">Academic Performance Summary</div>
+                
+                <div class="grade-summary">
+                    <div class="summary-item">
+                        <div class="summary-label">Weighted Average</div>
+                        <div class="summary-value" id="weightedAverage1">-</div>
+                        <div class="summary-subtext">/20 point scale</div>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <div class="summary-label">Total ECTS Credits</div>
+                        <div class="summary-value">30</div>
+                        <div class="summary-subtext">European Credit System</div>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <div class="summary-label">Academic Standing</div>
+                        <div class="status-indicator" id="academicStatus1">-</div>
+                        <div class="summary-subtext" id="statusDetails1" style="margin-top: 0.5rem;"></div>
+                    </div>
+                </div>
+
+                <div class="calculation-details">
+                    <h3 style="color: var(--primary-color); margin-bottom: 1.5rem;">Detailed Grade Breakdown</h3>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Core Modules (6 × Coefficient 3):</span>
+                        <span class="detail-value" id="coreModulesTotal1">-</span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">English Module (Coefficient 1):</span>
+                        <span class="detail-value" id="englishModuleTotal1">-</span>
+                    </div>
+                    
+                    <div class="detail-item" style="border-bottom: none; padding-bottom: 0;">
+                        <span class="detail-label" style="font-weight: 600;">Total Weighted Points:</span>
+                        <span class="detail-value" style="font-weight: 600; color: var(--primary-color);" id="totalWeightedPoints1">-</span>
+                    </div>
+                </div>
+
+                <div class="print-section">
+                    <p class="print-notice">
+                        This document is valid without signature when bearing the university seal.<br>
+                        Generated on: <span id="generationDate1"></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Semester 2 Content -->
+    <div class="semester-container" id="semester2">
+        <div class="calculator-container">
+            <h2 class="academic-title">Semester 2 Grade Calculation - Master's Program</h2>
+            
+            <div class="module-grid">
+                <!-- Semester 2 Modules -->
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-name">Deep Learning</div>
+                        <span class="coefficient-badge" data-coefficient="4">Coefficient 4</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <input type="number" class="grade-input" min="0" max="20" step="0.1" placeholder="Enter grade">
+                        <div class="input-hint">0-20 point scale</div>
+                    </div>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-name">Computer Vision Systems</div>
+                        <span class="coefficient-badge" data-coefficient="4">Coefficient 4</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <input type="number" class="grade-input" min="0" max="20" step="0.1" placeholder="Enter grade">
+                        <div class="input-hint">0-20 point scale</div>
+                    </div>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-name">Advanced Robotics</div>
+                        <span class="coefficient-badge" data-coefficient="3">Coefficient 3</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <input type="number" class="grade-input" min="0" max="20" step="0.1" placeholder="Enter grade">
+                        <div class="input-hint">0-20 point scale</div>
+                    </div>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-name">Cloud Computing</div>
+                        <span class="coefficient-badge" data-coefficient="3">Coefficient 3</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <input type="number" class="grade-input" min="0" max="20" step="0.1" placeholder="Enter grade">
+                        <div class="input-hint">0-20 point scale</div>
+                    </div>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-name">Research Thesis</div>
+                        <span class="coefficient-badge" data-coefficient="6">Coefficient 6</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <input type="number" class="grade-input" min="0" max="20" step="0.1" placeholder="Enter grade">
+                        <div class="input-hint">0-20 point scale</div>
+                    </div>
+                </div>
+
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-name">Professional Skills</div>
+                        <span class="coefficient-badge" data-coefficient="2">Coefficient 2</span>
+                    </div>
+                    <div class="grade-input-container">
+                        <input type="number" class="grade-input" min="0" max="20" step="0.1" placeholder="Enter grade">
+                        <div class="input-hint">0-20 point scale</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" onclick="calculateGrades()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
+                        <path d="M12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4z"/>
+                        <path d="M4 2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-2zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm3-6a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1zm0 3a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-4z"/>
+                    </svg>
+                    Calculate Semester Average
+                </button>
+                <button class="btn btn-secondary" onclick="generateReport()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
+                        <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/>
+                        <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/>
+                    </svg>
+                    Generate Official Report
+                </button>
+            </div>
+
+            <div class="results-panel" id="resultsPanel2">
+                <div class="results-header">Academic Performance Summary</div>
+                
+                <div class="grade-summary">
+                    <div class="summary-item">
+                        <div class="summary-label">Weighted Average</div>
+                        <div class="summary-value" id="weightedAverage2">-</div>
+                        <div class="summary-subtext">/20 point scale</div>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <div class="summary-label">Total ECTS Credits</div>
+                        <div class="summary-value">30</div>
+                        <div class="summary-subtext">European Credit System</div>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <div class="summary-label">Academic Standing</div>
+                        <div class="status-indicator" id="academicStatus2">-</div>
+                        <div class="summary-subtext" id="statusDetails2" style="margin-top: 0.5rem;"></div>
+                    </div>
+                </div>
+
+                <div class="calculation-details">
+                    <h3 style="color: var(--primary-color); margin-bottom: 1.5rem;">Detailed Grade Breakdown</h3>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Core Modules (4 × Coefficient 4):</span>
+                        <span class="detail-value" id="coreModulesTotal2">-</span>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <span class="detail-label">Research Thesis (Coefficient 6):</span>
+                        <span class="detail-value" id="thesisTotal2">-</span>
+                    </div>
+                    
+                    <div class="detail-item" style="border-bottom: none; padding-bottom: 0;">
+                        <span class="detail-label" style="font-weight: 600;">Total Weighted Points:</span>
+                        <span class="detail-value" style="font-weight: 600; color: var(--primary-color);" id="totalWeightedPoints2">-</span>
+                    </div>
+                </div>
+
+                <div class="print-section">
+                    <p class="print-notice">
+                        This document is valid without signature when bearing the university seal.<br>
+                        Generated on: <span id="generationDate2"></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Semester Switching Logic
+        function switchSemester(semester) {
+            // Update navigation buttons
+            document.querySelectorAll('.semester-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.textContent.includes(semester)) btn.classList.add('active');
+            });
+
+            // Update content visibility
+            document.querySelectorAll('.semester-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            document.getElementById(`semester${semester}`).classList.add('active');
+
+            // Update header text
+            const semesterTitle = document.getElementById('semesterTitle');
+            semesterTitle.textContent = `${semester === 1 ? 'First' : 'Second'} Semester Grade Calculation System`;
+        }
+
+        // Grade Calculation Logic
+        function calculateGrades() {
+            const activeSemester = document.querySelector('.semester-container.active');
+            const modules = activeSemester.querySelectorAll('.module-card');
+            let totalWeighted = 0;
+            let totalCoefficients = 0;
+
+            modules.forEach(module => {
+                const coefficient = parseFloat(module.querySelector('.coefficient-badge').dataset.coefficient);
+                const grade = parseFloat(module.querySelector('.grade-input').value) || 0;
+                
+                if(grade < 0 || grade > 20) {
+                    alert('Please enter valid grades between 0 and 20');
+                    return;
+                }
+
+                totalWeighted += grade * coefficient;
+                totalCoefficients += coefficient;
+            });
+
+            const weightedAverage = totalWeighted / totalCoefficients;
+            displayAcademicResults(weightedAverage, activeSemester);
+        }
+
+        // Display Results Logic           
+        function displayAcademicResults(average, container) {
+            const semesterId = container.id.replace('semester', '');
+            const resultsPanel = container.querySelector('.results-panel');
+            const weightedAverageElement = document.getElementById(`weightedAverage${semesterId}`);
+            const academicStatusElement = document.getElementById(`academicStatus${semesterId}`);
+            const statusDetailsElement = document.getElementById(`statusDetails${semesterId}`);
+
+            // Recalculate values for validation and display
+            const modules = container.querySelectorAll('.module-card');
+            let totalWeighted = 0;
+            let totalCoefficients = 0;
+            let validEntries = true;
+
+            modules.forEach(module => {
+                const coefficient = parseFloat(module.querySelector('.coefficient-badge').dataset.coefficient);
+                const gradeInput = module.querySelector('.grade-input');
+                const grade = parseFloat(gradeInput.value);
+                
+                // Validate inputs
+                if (isNaN(grade) || grade < 0 || grade > 20) {
+                    gradeInput.classList.add('validation-error');
+                    setTimeout(() => gradeInput.classList.remove('validation-error'), 400);
+                    validEntries = false;
+                }
+                
+                totalWeighted += (grade || 0) * coefficient;
+                totalCoefficients += coefficient;
+            });
+
+            if (!validEntries) {
+                alert('Please enter valid grades between 0 and 20 for all modules');
+                return;
+            }
+
+            // Update weighted average display
+            const weightedAverage = totalWeighted / totalCoefficients;
+            weightedAverageElement.textContent = weightedAverage.toFixed(2);
+
+            // Determine academic status
+            let statusText, statusColor, statusDetails;
+            if (weightedAverage >= 16) {
+                statusText = 'Distinction';
+                statusColor = 'var(--success-color)';
+                statusDetails = 'Outstanding academic performance';
+            } else if (weightedAverage >= 14) {
+                statusText = 'Merit';
+                statusColor = 'var(--accent-color)';
+                statusDetails = 'Excellent academic achievement';
+            } else if (weightedAverage >= 10) {
+                statusText = 'Pass';
+                statusColor = 'var(--primary-color)';
+                statusDetails = 'Satisfactory academic standing';
+            } else {
+                statusText = 'Fail';
+                statusColor = 'var(--error-color)';
+                statusDetails = 'Academic probation required';
+            }
+
+            academicStatusElement.textContent = statusText;
+            academicStatusElement.style.backgroundColor = statusColor;
+            statusDetailsElement.textContent = statusDetails;
+
+            // Update detailed breakdown
+            if (semesterId === '1') {
+                let coreTotal = 0, englishTotal = 0;
+                modules.forEach(module => {
+                    const coefficient = parseFloat(module.querySelector('.coefficient-badge').dataset.coefficient);
+                    const grade = parseFloat(module.querySelector('.grade-input').value) || 0;
+                    coefficient === 3 ? coreTotal += grade * coefficient : englishTotal += grade * coefficient;
+                });
+                document.getElementById(`coreModulesTotal1`).textContent = coreTotal.toFixed(2);
+                document.getElementById(`englishModuleTotal1`).textContent = englishTotal.toFixed(2);
+            } else {
+                let coreTotal = 0, thesisTotal = 0;
+                modules.forEach(module => {
+                    const coefficient = parseFloat(module.querySelector('.coefficient-badge').dataset.coefficient);
+                    const grade = parseFloat(module.querySelector('.grade-input').value) || 0;
+                    coefficient === 4 ? coreTotal += grade * coefficient : 
+                    coefficient === 6 ? thesisTotal += grade * coefficient : null;
+                });
+                document.getElementById(`coreModulesTotal2`).textContent = coreTotal.toFixed(2);
+                document.getElementById(`thesisTotal2`).textContent = thesisTotal.toFixed(2);
+            }
+
+            // Update total points and date
+            document.getElementById(`totalWeightedPoints${semesterId}`).textContent = totalWeighted.toFixed(2);
+            document.getElementById(`generationDate${semesterId}`).textContent = 
+                new Date().toLocaleString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+
+            // Show results panel
+            resultsPanel.style.display = 'block';
+        }
+
+        function generateReport() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
