@@ -16,4 +16,4 @@ A comprehensive web-based calculator for computing semester averages and generat
 
 1. Clone repository:
 ```bash
-git clone https://github.com/yourusername/university-grade-calculator.git
+git clone https://github.com/YounesToukal/university-grade-calculator.git
